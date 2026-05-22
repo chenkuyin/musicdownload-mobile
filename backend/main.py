@@ -273,7 +273,12 @@ def cache_search_results(source_name: str, songs: list):
         if isinstance(song, dict):
             key = f"{source_name}:{song.get('identifier', '')}"
             if key:
-                _search_cache[key] = song
+                # 将 dict 转换为 SongInfo 对象缓存
+                try:
+                    _search_cache[key] = SongInfo.fromdict(song)
+                except Exception as e:
+                    print(f"转换 SongInfo 失败: {e}, 使用原始 dict")
+                    _search_cache[key] = song
         else:
             # SongInfo 对象
             key = f"{source_name}:{getattr(song, 'identifier', '')}"
@@ -295,16 +300,14 @@ async def perform_download(task_id: str, request: DownloadRequest):
         client = get_music_client([request.source])
         
         # 首先尝试从缓存获取完整的歌曲信息
-        cached_song = get_cached_song(request.source, request.identifier)
+        song_info = get_cached_song(request.source, request.identifier)
         
-        if cached_song:
-            # 使用缓存的原始歌曲信息（包含 musicdl 需要的所有内部属性）
-            song_info = cached_song
-            print(f"使用缓存的歌曲信息: {song_info}")
+        if song_info:
+            print(f"使用缓存的歌曲信息: {getattr(song_info, 'song_name', 'unknown')}")
         else:
             # 缓存未命中，构造基本歌曲信息
             print(f"缓存未命中，构造歌曲信息")
-            song_info = {
+            song_info = SongInfo.fromdict({
                 "identifier": request.identifier,
                 "song_name": request.song_name,
                 "singers": request.singers,
@@ -315,19 +318,14 @@ async def perform_download(task_id: str, request: DownloadRequest):
                 "cover_url": request.cover_url,
                 "duration": request.duration or "",
                 "file_size": request.file_size or "",
-            }
+            })
         
         download_tasks[task_id]["message"] = "正在下载..."
         download_tasks[task_id]["progress"] = 30.0
         
-        # 执行下载 - 确保传入 SongInfo 对象
+        # 执行下载
         try:
-            # 如果 song_info 是 dict，转换为 SongInfo 对象
-            if isinstance(song_info, dict):
-                song_info_obj = SongInfo.fromdict(song_info)
-            else:
-                song_info_obj = song_info
-            downloaded_songs = client.download(song_infos=[song_info_obj])
+            downloaded_songs = client.download(song_infos=[song_info])
         except Exception as e:
             print(f"下载调用异常: {e}")
             import traceback
