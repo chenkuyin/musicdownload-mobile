@@ -1,28 +1,39 @@
-venv/
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
 .env
-.venv
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git
-.mypy_cache
-.pytest_cache
-.hypothesis
 
-# 下载的文件（可选，如果需要持久化则注释掉）
-downloads/*.mp3
-downloads/*.flac
-downloads/*.m4a
-downloads/*.wav
+# Downloads
+downloads/
+*.mp3
+*.flac
+*.m4a
+*.wav
+*.ogg
+*.lrc
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Project specific
+musicdl_outputs/
+*.pkl
