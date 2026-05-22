@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
+import android.provider.DocumentsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -31,6 +32,25 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.musicdownloader.data.model.Song
 import com.example.musicdownloader.ui.viewmodel.SearchViewModel
+
+// 辅助函数：将 URI 转换为路径
+private fun getPathFromUri(context: Context, uri: Uri): String? {
+    // 尝试获取真实路径
+    if (DocumentsContract.isDocumentUri(context, uri)) {
+        val docId = DocumentsContract.getTreeDocumentId(uri)
+        val split = docId.split(":")
+        if (split.size >= 2) {
+            val type = split[0]
+            val path = split[1]
+            return when (type) {
+                "primary" -> "/storage/emulated/0/$path"
+                else -> "/storage/$type/$path"
+            }
+        }
+    }
+    // 如果无法解析，返回 URI 字符串
+    return uri.toString()
+}
 
 // 颜色定义 - 匹配原项目
 val PrimaryBlue = Color(0xFF0078d4)
@@ -60,6 +80,30 @@ fun SearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    // 目录选择器
+    val directoryPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let {
+            // 持久化权限
+            context.contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            // 转换为实际路径
+            val path = getPathFromUri(context, it)
+            viewModel.updateSaveDir(path ?: it.toString())
+        }
+        viewModel.onDirectoryPickerDismissed()
+    }
+
+    // 触发目录选择器
+    LaunchedEffect(uiState.triggerDirectoryPicker) {
+        if (uiState.triggerDirectoryPicker) {
+            directoryPickerLauncher.launch(null)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -115,7 +159,7 @@ fun SearchScreen(
                 searchLimit = uiState.searchLimit,
                 onLimitChange = viewModel::onLimitChange,
                 saveDir = uiState.saveDir,
-                onBrowseDir = { viewModel.onBrowseSaveDir(context) },
+                onBrowseDir = { viewModel.onBrowseSaveDir() },
                 autoDownload = uiState.autoDownload,
                 onAutoDownloadChange = viewModel::onAutoDownloadChange
             )
@@ -369,7 +413,7 @@ private fun SettingsCard(
                 )
 
                 Button(
-                    onClick = onBrowseDir,
+                    onClick = { onBrowseDir() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = PrimaryBlue,
                         contentColor = Color.White

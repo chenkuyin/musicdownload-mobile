@@ -185,7 +185,7 @@ private fun DownloadedFileItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "$formattedSize • ${dateFormat.format(Date(file.modified * 1000))}",
+                    text = "$formattedSize • ${dateFormat.format(Date((file.modified * 1000).toLong()))}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

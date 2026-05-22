@@ -44,7 +44,10 @@ data class SearchUiState(
     val downloadMessage: String = "",
     val downloadCount: Int = 0,
     val isDownloading: Boolean = false,
-    val downloadedFiles: List<String> = emptyList() // 已下载到本地的文件路径
+    val downloadedFiles: List<String> = emptyList(), // 已下载到本地的文件路径
+
+    // 目录选择触发器
+    val triggerDirectoryPicker: Boolean = false
 )
 
 @OptIn(FlowPreview::class)
@@ -165,35 +168,18 @@ class SearchViewModel @Inject constructor(
         _uiState.update { it.copy(searchLimit = limit) }
     }
 
-    fun onBrowseSaveDir(context: Context) {
-        // 打开系统文件选择器选择目录
-        // 注意：实际需要在 Activity 中处理 onActivityResult
-        // 这里先尝试使用默认音乐目录
-        try {
-            val musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
-            val defaultDir = musicDir?.absolutePath ?: "/storage/emulated/0/Music"
-            val targetDir = "$defaultDir/已下载音乐"
-            
-            // 更新UI状态，实际目录选择由Activity处理
-            _uiState.update { 
-                it.copy(
-                    saveDir = targetDir
-                )
-            }
-            
-            // 尝试创建目录
-            val dir = java.io.File(targetDir)
-            if (!dir.exists()) {
-                dir.mkdirs()
-            }
-        } catch (e: Exception) {
-            // 保持当前目录
-        }
+    fun onBrowseSaveDir() {
+        // 触发目录选择器
+        _uiState.update { it.copy(triggerDirectoryPicker = true) }
     }
-    
+
+    fun onDirectoryPickerDismissed() {
+        _uiState.update { it.copy(triggerDirectoryPicker = false) }
+    }
+
     // 供Activity调用更新目录
     fun updateSaveDir(newDir: String) {
-        _uiState.update { it.copy(saveDir = newDir) }
+        _uiState.update { it.copy(saveDir = newDir, triggerDirectoryPicker = false) }
     }
 
     fun onAutoDownloadChange(enabled: Boolean) {

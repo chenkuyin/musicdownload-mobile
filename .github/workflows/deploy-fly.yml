@@ -5,6 +5,9 @@ on:
     branches: [main, master]
     paths:
       - 'backend/**'
+      - 'Dockerfile'
+      - 'fly.toml'
+      - '.github/workflows/deploy-fly.yml'
   workflow_dispatch:
 
 jobs:

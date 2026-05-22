@@ -23,6 +23,7 @@ from pathlib import Path
 # 导入 musicdl
 try:
     from musicdl import musicdl
+    from musicdl.modules.utils.data import SongInfo
     MUSICDL_AVAILABLE = True
 except ImportError:
     MUSICDL_AVAILABLE = False
@@ -319,9 +320,14 @@ async def perform_download(task_id: str, request: DownloadRequest):
         download_tasks[task_id]["message"] = "正在下载..."
         download_tasks[task_id]["progress"] = 30.0
         
-        # 执行下载
+        # 执行下载 - 确保传入 SongInfo 对象
         try:
-            downloaded_songs = client.download(song_infos=[song_info])
+            # 如果 song_info 是 dict，转换为 SongInfo 对象
+            if isinstance(song_info, dict):
+                song_info_obj = SongInfo.fromdict(song_info)
+            else:
+                song_info_obj = song_info
+            downloaded_songs = client.download(song_infos=[song_info_obj])
         except Exception as e:
             print(f"下载调用异常: {e}")
             import traceback

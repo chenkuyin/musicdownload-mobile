@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
     
     // 默认服务器地址，可在设置中修改
-    var BASE_URL = "http://192.168.100.196:8000"  // 真机访问本机
+    var BASE_URL = "https://musicdownload-mobile.fly.dev/"  // 远程服务器
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

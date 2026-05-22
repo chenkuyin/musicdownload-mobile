@@ -84,7 +84,7 @@ data class DownloadTask(
 data class DownloadedFile(
     val name: String,
     val size: Long,
-    val modified: Long,
+    val modified: Double,
     val path: String
 )
 
