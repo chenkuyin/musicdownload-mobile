@@ -1,4 +1,4 @@
-app = 'musicdownload-api'
+app = 'musicdownload-mobile'
 primary_region = 'hkg'
 
 [build]
