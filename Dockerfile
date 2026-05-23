@@ -1,11 +1,15 @@
 FROM python:3.11-slim
 
-WORKDIR /app
-
-# 安装系统依赖
+# 设置时区为上海
+ENV TZ=Asia/Shanghai
 RUN apt-get update && apt-get install -y \
     gcc \
+    tzdata \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
 
 # 复制依赖文件
 COPY backend/requirements.txt .
