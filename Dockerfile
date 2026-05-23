@@ -29,4 +29,4 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
 ENV TZ=Asia/Shanghai
 
 #安装时区数据包
-tzdata
+#tzdata
