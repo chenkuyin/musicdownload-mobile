@@ -19,6 +19,7 @@ import os
 import json
 import asyncio
 from pathlib import Path
+from datetime import datetime
 
 # 导入 musicdl
 try:
@@ -470,6 +471,22 @@ async def delete_download(filename: str):
         return {"success": True, "message": "文件已删除"}
     else:
         raise HTTPException(status_code=404, detail="文件不存在")
+
+
+# ============ 调试接口 ============
+
+@app.get("/debug/time")
+async def debug_time():
+    """调试接口：查看服务器时间和时区设置"""
+    import time
+    return {
+        "datetime_now": str(datetime.now()),
+        "datetime_utcnow": str(datetime.utcnow()),
+        "timestamp": time.time(),
+        "tz_env": os.environ.get('TZ', 'not set'),
+        "timezone_file": os.path.exists('/etc/timezone'),
+        "localtime_link": os.path.exists('/etc/localtime'),
+    }
 
 
 # ============ 运行服务器 ============
