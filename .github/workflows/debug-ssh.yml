@@ -1,0 +1,19 @@
+name: Debug SSH
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Check time and timezone
+        run: |
+          flyctl ssh console -a musicdownload-mobile -C "date"
+          flyctl ssh console -a musicdownload-mobile -C "cat /etc/timezone"
+          flyctl ssh console -a musicdownload-mobile -C "ls -la /etc/localtime"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
