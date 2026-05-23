@@ -1,5 +1,10 @@
+# fly.toml app configuration file generated for musicdownload-mobile on 2026-05-23T01:55:09Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
 app = 'musicdownload-mobile'
-primary_region = 'hkg'
+primary_region = 'lax'
 
 [build]
   dockerfile = 'Dockerfile'
